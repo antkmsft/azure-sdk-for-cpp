@@ -1,6 +1,7 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
+find_dependency(Threads)
 if(@BUILD_TRANSPORT_CURL@)
   find_dependency(CURL @CURL_MIN_REQUIRED_VERSION@)
 endif()
