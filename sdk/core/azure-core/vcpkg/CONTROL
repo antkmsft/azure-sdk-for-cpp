@@ -10,5 +10,6 @@ Default-Features: curl
 Feature: curl
 Description: Build an HTTP transport implementation with LibCURL
 
-Feature: winhttp (windows&!uwp)
+Feature: winhttp
+Build-Depends: azure-core-cpp[core] (windows)
 Description: Build an HTTP transport implementation with WinHTTP
