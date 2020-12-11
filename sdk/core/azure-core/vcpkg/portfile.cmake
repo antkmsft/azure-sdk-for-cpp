@@ -14,6 +14,7 @@ vcpkg_from_github(
 vcpkg_check_features(
     OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
+        curl BUILD_TRANSPORT_CURL
         winhttp BUILD_TRANSPORT_WINHTTP
 )
 
