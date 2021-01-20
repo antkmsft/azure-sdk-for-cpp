@@ -146,5 +146,5 @@ generate_documentation(azure-core ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-core
     CORE
-    "/inc/azure/core/dll_import_export.hpp"
+    "azure/core/dll_import_export.hpp"
   )

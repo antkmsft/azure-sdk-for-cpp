@@ -64,7 +64,7 @@ generate_documentation(azure-template ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-template
     TEMPLATE
-    "/inc/azure/template/dll_import_export.hpp"
+    "azure/template/dll_import_export.hpp"
   )
 
 if(BUILD_TESTING)

@@ -95,7 +95,7 @@ generate_documentation(azure-storage-common ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-storage-common
     STORAGE_COMMON
-    "/inc/azure/storage/common/dll_import_export.hpp"
+    "azure/storage/common/dll_import_export.hpp"
   )
 
 # coverage. Has no effect if BUILD_CODE_COVERAGE is OFF

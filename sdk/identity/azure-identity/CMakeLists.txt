@@ -67,5 +67,5 @@ generate_documentation(azure-identity ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-identity
     IDENTITY
-    "/inc/azure/identity/dll_import_export.hpp"
+    "azure/identity/dll_import_export.hpp"
   )

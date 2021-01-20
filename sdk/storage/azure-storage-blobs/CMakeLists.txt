@@ -75,7 +75,7 @@ generate_documentation(azure-storage-blobs ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-storage-blobs
     STORAGE_BLOBS
-    "/inc/azure/storage/blobs/dll_import_export.hpp"
+    "azure/storage/blobs/dll_import_export.hpp"
   )
 
 # coverage. Has no effect if BUILD_CODE_COVERAGE is OFF

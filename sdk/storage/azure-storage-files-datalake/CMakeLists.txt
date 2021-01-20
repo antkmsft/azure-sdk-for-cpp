@@ -77,7 +77,7 @@ generate_documentation(azure-storage-files-datalake ${AZ_LIBRARY_VERSION})
 az_vcpkg_export(
     azure-storage-files-datalake
     STORAGE_FILES_DATALAKE
-    "/inc/azure/storage/files/datalake/dll_import_export.hpp"
+    "azure/storage/files/datalake/dll_import_export.hpp"
   )
 
 # coverage. Has no effect if BUILD_CODE_COVERAGE is OFF
