@@ -145,6 +145,21 @@ generate_documentation(azure-core ${AZ_LIBRARY_VERSION})
 
 az_vcpkg_export(azure-core)
 
+if(WIN32)
+  message("WIN32 = yes")
+else()
+  message("WIN32 = no")
+endif()
+
+if(BUILD_SHARED_LIBS)
+  message("BUILD_SHARED_LIBS = yes")
+else()
+  message("BUILD_SHARED_LIBS = no")
+endif()
+
+message("configure_file() first arg: ${CMAKE_CURRENT_SOURCE_DIR}/inc/azure/core/dll_import_export.hpp")
+message("configure_file() second arg: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/azure/core/dll_import_export.hpp")
+
 if(WIN32 AND BUILD_SHARED_LIBS)
   add_compile_definitions(AZ_CORE_BEING_BUILT)
   target_compile_definitions(azure-core PUBLIC AZ_CORE_DLL)
