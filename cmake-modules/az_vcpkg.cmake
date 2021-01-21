@@ -53,7 +53,7 @@ macro(az_vcpkg_export targetName macroNamePart dllImportExportHeaderPath)
     set(AZ_${macroNamePart}_DLL_INSTALLED_AS_PACKAGE "*/ + 1 /*")
     configure_file(
       "${CMAKE_CURRENT_SOURCE_DIR}/inc/${dllImportExportHeaderPath}"
-      "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}${dllImportExportHeaderPath}"
+      "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/${dllImportExportHeaderPath}"
       @ONLY
     )
     unset(AZ_${macroNamePart}_DLL_INSTALLED_AS_PACKAGE)
