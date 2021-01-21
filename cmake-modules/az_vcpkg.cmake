@@ -58,10 +58,12 @@ macro(az_vcpkg_export targetName macroNamePart dllImportExportHeaderPath)
     )
     unset(AZ_${macroNamePart}_DLL_INSTALLED_AS_PACKAGE)
 
+    get_filename_component(dllImportExportHeaderDir ${dllImportExportHeaderPath} DIRECTORY)
     install(
         FILES "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/${dllImportExportHeaderPath}"
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${dllImportExportHeaderPath}"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${dllImportExportHeaderDir}"
     )
+    unset(dllImportExportHeaderDir)
   endif()
 
   # Export the targets file itself.
