@@ -48,7 +48,7 @@ macro(az_vcpkg_export targetName macroNamePart dllImportExportHeaderPath)
   # If building a Windows DLL, patch the dll_import_export.hpp
   if(WIN32 AND BUILD_SHARED_LIBS)
     add_compile_definitions(AZ_${macroNamePart}_BEING_BUILT)
-    target_compile_definitions(azure-core PUBLIC AZ_${macroNamePart}_DLL)
+    target_compile_definitions(${targetName} PUBLIC AZ_${macroNamePart}_DLL)
 
     set(AZ_${macroNamePart}_DLL_INSTALLED_AS_PACKAGE "*/ + 1 /*")
     configure_file(
