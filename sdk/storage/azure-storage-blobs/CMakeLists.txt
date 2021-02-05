@@ -17,8 +17,6 @@ include(AzureTransportAdapters)
 include(AzureDoxygen)
 include(AzureGlobalCompileOptions)
 
-az_vcpkg_integrate()
-
 if(NOT AZ_ALL_LIBRARIES)
   find_package(azure-storage-common-cpp CONFIG QUIET)
   if(NOT azure-storage-common-cpp_FOUND)

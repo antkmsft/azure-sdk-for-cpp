@@ -17,8 +17,6 @@ include(AzureTransportAdapters)
 include(AzureDoxygen)
 include(AzureGlobalCompileOptions)
 
-az_vcpkg_integrate()
-
 # Disable dependency on azure-core until azure-core has released to vcpkg
 # if(NOT AZ_ALL_LIBRARIES)
 #   find_package(azure-core-cpp CONFIG QUIET)

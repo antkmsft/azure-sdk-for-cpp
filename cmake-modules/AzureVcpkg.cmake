@@ -4,20 +4,6 @@
 # We need to know an absolute path to our repo root to do things like referencing ./LICENSE.txt file.
 set(AZ_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 
-macro(az_vcpkg_integrate)
-  # VCPKG Integration
-  if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        CACHE STRING "")
-  elseif(DEFINED ENV{VCPKG_INSTALLATION_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        CACHE STRING "")
-  endif()
-  if(DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
-    set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
-  endif()
-endmacro()
-
 macro(az_vcpkg_export targetName macroNamePart dllImportExportHeaderPath)
   # Produce the files to help with the VcPkg release.
   # Go to the /out/build/<cfg>/vcpkg directory, and copy (merge) "ports" folder to the vcpkg repo.

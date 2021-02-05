@@ -17,8 +17,6 @@ include(AzureTransportAdapters)
 include(AzureDoxygen)
 include(AzureGlobalCompileOptions)
 
-az_vcpkg_integrate()
-
 if(NOT AZ_ALL_LIBRARIES)
   find_package(azure-storage-blobs-cpp CONFIG QUIET)
   if(NOT azure-storage-blobs-cpp_FOUND)

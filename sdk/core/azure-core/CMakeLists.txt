@@ -17,8 +17,6 @@ include(AzureTransportAdapters)
 include(AzureDoxygen)
 include(AzureGlobalCompileOptions)
 
-az_vcpkg_integrate()
-
 find_package(Threads REQUIRED)
 
 if(BUILD_TRANSPORT_CURL)

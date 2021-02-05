@@ -17,8 +17,6 @@ include(AzureTransportAdapters)
 include(AzureDoxygen)
 include(AzureGlobalCompileOptions)
 
-az_vcpkg_integrate()
-
 if(NOT AZ_ALL_LIBRARIES)
   find_package(azure-security-keyvault-common-cpp CONFIG QUIET)
   if(NOT azure-security-keyvault-common-cpp_FOUND)
