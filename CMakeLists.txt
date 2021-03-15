@@ -95,3 +95,5 @@ add_subdirectory(sdk/identity)
 add_subdirectory(sdk/keyvault)
 add_subdirectory(sdk/storage)
 add_subdirectory(sdk/template)
+
+add_subdirectory(samples/custom_managed_identity_credential)

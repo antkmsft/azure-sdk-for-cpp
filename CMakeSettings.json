@@ -138,7 +138,7 @@
     {
       "name": "x64-Release",
       "generator": "Ninja",
-      "configurationType": "MinSizeRel",
+      "configurationType": "Debug",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
@@ -153,7 +153,7 @@
         },
         {
           "name": "BUILD_TESTING",
-          "value": "True",
+          "value": "False",
           "type": "BOOL"
         },
         {
@@ -163,12 +163,12 @@
         },
         {
           "name": "BUILD_TRANSPORT_WINHTTP",
-          "value": "True",
+          "value": "False",
           "type": "BOOL"
         },
         {
           "name": "BUILD_PERFORMANCE_TESTS",
-          "value": "True",
+          "value": "False",
           "type": "BOOL"
         }
       ]
