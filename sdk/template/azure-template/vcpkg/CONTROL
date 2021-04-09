@@ -3,8 +3,13 @@
 #
 Source: azure-template-cpp
 Version: @AZ_LIBRARY_VERSION@
-Build-Depends: azure-core-cpp
+Build-Depends: azure-core-cpp[core]
 Description: Microsoft Azure Template SDK for C++
   This is a template library meant to illustrate initial client library development process for Azure SDK.
   It is not meant to be published to vcpkg.
 Homepage: https://github.com/Azure/azure-sdk-for-cpp/tree/master/sdk/template/azure-template
+Default-Features: default
+
+Feature: default
+Build-Depends: azure-core-cpp
+Description: Require default set of features for Azure SDK packages

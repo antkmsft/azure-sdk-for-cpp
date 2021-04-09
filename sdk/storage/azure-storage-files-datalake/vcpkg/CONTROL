@@ -3,7 +3,12 @@
 #
 Source: azure-storage-files-datalake-cpp
 Version: @AZ_LIBRARY_VERSION@
-Build-Depends: azure-storage-blobs-cpp
+Build-Depends: azure-storage-blobs-cpp[core]
 Description: Microsoft Azure Storage Files Data Lake SDK for C++
   This library provides Azure Storage Files Data Lake SDK.
 Homepage: https://github.com/Azure/azure-sdk-for-cpp/tree/master/sdk/storage/azure-storage-files-datalake
+Default-Features: default
+
+Feature: default
+Build-Depends: azure-storage-blobs-cpp
+Description: Require default set of features for Azure SDK packages

@@ -1,6 +1,14 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
 Source: azure-security-keyvault-keys-cpp
 Version: @AZ_LIBRARY_VERSION@
-Build-Depends: azure-security-keyvault-common-cpp
+Build-Depends: azure-security-keyvault-common-cpp[core]
 Description: Microsoft Azure Key Vault Keys SDK for C++
   This library provides Azure Key Vault Keys SDK.
 Homepage: https://github.com/Azure/azure-sdk-for-cpp/tree/master/sdk/keyvault/azure-security-keyvault-keys
+Default-Features: default
+
+Feature: default
+Build-Depends: azure-security-keyvault-common-cpp
+Description: Require default set of features for Azure SDK packages
