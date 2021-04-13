@@ -6,5 +6,6 @@
 namespace Azure { namespace Core {
 
   inline void V10Function() {}
+  inline void V11Function() {}
 
 }} // namespace Azure::Core
