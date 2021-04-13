@@ -14,7 +14,7 @@ namespace {
 // Assumes !scopes.empty()
 std::string FormatScopes(std::vector<std::string> const& scopes, bool asResource)
 {
-  Azure::Core::V10Beta13Function();
+  Azure::Core::V10Function();
 
   if (asResource && scopes.size() == 1)
   {
