@@ -5,6 +5,7 @@
 
 #include <azure/core/http/http.hpp>
 #include <azure/core/internal/http/pipeline.hpp>
+#include <azure/core/release_test.hpp>
 
 #include <chrono>
 #include <sstream>
@@ -13,6 +14,8 @@ namespace {
 // Assumes !scopes.empty()
 std::string FormatScopes(std::vector<std::string> const& scopes, bool asResource)
 {
+  Azure::Core::V10Beta10Function();
+
   if (asResource && scopes.size() == 1)
   {
     auto resource = scopes[0];

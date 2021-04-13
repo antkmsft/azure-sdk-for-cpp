@@ -77,6 +77,7 @@ set(
     inc/azure/core/operation.hpp
     inc/azure/core/operation_status.hpp
     inc/azure/core/platform.hpp
+    inc/azure/core/release_test.hpp
     inc/azure/core/response.hpp
     inc/azure/core/url.hpp
     inc/azure/core/uuid.hpp
