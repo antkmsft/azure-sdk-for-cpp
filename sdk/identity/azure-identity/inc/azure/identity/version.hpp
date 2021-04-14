@@ -15,7 +15,7 @@
 #define AZURE_IDENTITY_VERSION_MAJOR 2
 #define AZURE_IDENTITY_VERSION_MINOR 1
 #define AZURE_IDENTITY_VERSION_PATCH 0
-#define AZURE_IDENTITY_VERSION_PRERELEASE "beta.1"
+#define AZURE_IDENTITY_VERSION_PRERELEASE ""
 
 namespace Azure { namespace Identity { namespace _detail {
 
