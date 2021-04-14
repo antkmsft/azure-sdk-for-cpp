@@ -17,6 +17,7 @@ std::string FormatScopes(std::vector<std::string> const& scopes, bool asResource
   Azure::Core::V20Function();
   Azure::Core::V21Function();
   Azure::Core::V22Function();
+  Azure::Core::V23Function();
 
   if (asResource && scopes.size() == 1)
   {

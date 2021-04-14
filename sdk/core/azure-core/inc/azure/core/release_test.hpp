@@ -8,5 +8,6 @@ namespace Azure { namespace Core {
   inline void V20Function() {}
   inline void V21Function() {}
   inline void V22Function() {}
+  inline void V23Function() {}
 
 }} // namespace Azure::Core
