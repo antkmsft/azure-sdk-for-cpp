@@ -307,6 +307,11 @@ Azure::Core::Http::CurlTransportOptions CurlTransportOptionsFromTransportOptions
   curlOptions.SslOptions.EnableCertificateRevocationListCheck
       = transportOptions.EnableCertificateRevocationListCheck;
 
+  if (transportOptions.ConnectionTimeout != (std::chrono::milliseconds::min)())
+  {
+    curlOptions.ConnectionTimeout = transportOptions.ConnectionTimeout;
+  }
+
 #if LIBCURL_VERSION_NUM >= 0x074D00 // 7.77.0
   if (!transportOptions.ExpectedTlsRootCertificate.empty())
   {

@@ -218,6 +218,8 @@ namespace Azure { namespace Core { namespace Http { namespace Policies {
      *
      */
     std::shared_ptr<HttpTransport> Transport;
+
+    std::chrono::milliseconds ConnectionTimeout = (std::chrono::milliseconds::min)();
   };
 
   class NextHttpPolicy;

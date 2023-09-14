@@ -122,6 +122,8 @@ namespace Azure { namespace Core {
        * the server.
        */
       std::vector<std::string> ExpectedTlsRootCertificates;
+
+      std::chrono::milliseconds ConnectionTimeout;
     };
 
     /**

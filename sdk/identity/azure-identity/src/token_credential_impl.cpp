@@ -40,6 +40,7 @@ TokenCredentialImpl::TokenCredentialImpl(
   if (firstResponseFailsFast)
   {
     auto optionsOverride = options;
+    optionsOverride.Transport.ConnectionTimeout = std::chrono::seconds(1);
     optionsOverride.Retry.MaxRetries = 0;
 
     m_firstAttemptPipeline.reset(
