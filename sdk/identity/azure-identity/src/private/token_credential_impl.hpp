@@ -15,6 +15,7 @@
 #include <azure/core/internal/http/pipeline.hpp>
 #include <azure/core/io/body_stream.hpp>
 
+#include <mutex>
 #include <functional>
 #include <memory>
 #include <string>
@@ -30,6 +31,9 @@ namespace Azure { namespace Identity { namespace _detail {
   private:
     Core::Http::_internal::HttpPipeline m_httpPipeline;
 
+    mutable std::unique_ptr<Core::Http::_internal::HttpPipeline> m_firstAttemptPipeline;
+    mutable std::mutex m_firstAttemptPipelineMutex;
+
   public:
     /**
      * @brief Destructs `%TokenCredentialImpl`.
@@ -41,7 +45,9 @@ namespace Azure { namespace Identity { namespace _detail {
      * @brief Constructs `%TokenCredentialImpl`.
      *
      */
-    explicit TokenCredentialImpl(Core::Credentials::TokenCredentialOptions const& options);
+    explicit TokenCredentialImpl(
+        Core::Credentials::TokenCredentialOptions const& options,
+        bool firstRequestFailsFast = false);
 
     /**
      * @brief Formats authentication scopes so that they can be used in Identity requests.

@@ -29,11 +29,22 @@ using Azure::Core::Credentials::AuthenticationException;
 using Azure::Core::Credentials::TokenCredentialOptions;
 using Azure::Core::Http::HttpStatusCode;
 using Azure::Core::Http::RawResponse;
+using Azure::Core::Http::_internal::HttpPipeline;
 using Azure::Core::Json::_internal::json;
 
-TokenCredentialImpl::TokenCredentialImpl(TokenCredentialOptions const& options)
+TokenCredentialImpl::TokenCredentialImpl(
+    TokenCredentialOptions const& options,
+    bool firstResponseFailsFast)
     : m_httpPipeline(options, "identity", PackageVersion::ToString(), {}, {})
 {
+  if (firstResponseFailsFast)
+  {
+    auto optionsOverride = options;
+    optionsOverride.Retry.MaxRetries = 0;
+
+    m_firstAttemptPipeline.reset(
+        new HttpPipeline(optionsOverride, "identity", PackageVersion::ToString(), {}, {}));
+  }
 }
 
 namespace {
@@ -102,7 +113,19 @@ AccessToken TokenCredentialImpl::GetToken(
       auto request = createRequest();
       for (;;)
       {
-        response = m_httpPipeline.Send(request->HttpRequest, context);
+        {
+          std::unique_lock<std::mutex> lock(m_firstAttemptPipelineMutex, std::defer_lock);
+          if (lock.try_lock() && m_firstAttemptPipeline)
+          {
+            response = m_firstAttemptPipeline->Send(request->HttpRequest, context);
+            m_firstAttemptPipeline.reset();
+          }
+          else
+          {
+            response = m_httpPipeline.Send(request->HttpRequest, context);
+          }
+        }
+
         if (!response)
         {
           throw std::runtime_error("null response");

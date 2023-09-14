@@ -37,8 +37,9 @@ namespace Azure { namespace Identity { namespace _detail {
     explicit ManagedIdentitySource(
         std::string clientId,
         std::string authorityHost,
-        Core::Credentials::TokenCredentialOptions const& options)
-        : TokenCredentialImpl(options), m_clientId(std::move(clientId)),
+        Core::Credentials::TokenCredentialOptions const& options,
+        bool firstAttemptFailsFast = false)
+        : TokenCredentialImpl(options, firstAttemptFailsFast), m_clientId(std::move(clientId)),
           m_authorityHost(std::move(authorityHost))
     {
     }

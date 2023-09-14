@@ -380,7 +380,7 @@ std::unique_ptr<ManagedIdentitySource> ImdsManagedIdentitySource::Create(
 ImdsManagedIdentitySource::ImdsManagedIdentitySource(
     std::string const& clientId,
     Azure::Core::Credentials::TokenCredentialOptions const& options)
-    : ManagedIdentitySource(clientId, std::string(), options),
+    : ManagedIdentitySource(clientId, std::string(), options, true),
       m_request(
           Azure::Core::Http::HttpMethod::Get,
           Azure::Core::Url("http://169.254.169.254/metadata/identity/oauth2/token"))
