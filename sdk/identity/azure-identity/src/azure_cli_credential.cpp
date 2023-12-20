@@ -155,7 +155,33 @@ std::string RunShellCommand(
     std::string const& command,
     DateTime::duration timeout,
     Context const& context);
+
+AccessToken ParseTokenFromAzureCli(
+    std::string const& azCliResult,
+    int tzOffset,
+    std::string* expirationPropertyNameThatWasParsed = nullptr)
+{
+  // The order of elements in the vector below does matter - the code tries to find them
+  // consequently, and if finding the first one succeeds, we would not attempt to parse the
+  // second one. That is important, because the newer Azure CLI versions do have the new
+  // 'expires_on' field, which is not affected by time zone changes. The 'expiresOn' field was
+  // the only field that was present in the older versions, and it had problems, because it
+  // was a local timestamp without the time zone information.
+  // So, if only the 'expires_on' is available, we try to use it, and only if it is not
+  // available, we fall back to trying to get the value via 'expiresOn', which we also now are
+  // able to handle correctly, except when the token expiration crosses the time when the
+  // local system clock moves to and from DST (and when we detect that's the case, we run the Azure
+  // CLI command for the second time).
+
+  return TokenCredentialImpl::ParseToken(
+      azCliResult,
+      "accessToken",
+      "expiresIn",
+      std::vector<std::string>{"expires_on", "expiresOn"},
+      tzOffset,
+      expirationPropertyNameThatWasParsed);
 }
+} // namespace
 
 AccessToken AzureCliCredential::GetToken(
     TokenRequestContext const& tokenRequestContext,
@@ -164,7 +190,6 @@ AccessToken AzureCliCredential::GetToken(
   auto const scopes = TokenCredentialImpl::FormatScopes(tokenRequestContext.Scopes, false, false);
   auto const tenantId
       = TenantIdResolver::Resolve(m_tenantId, tokenRequestContext, m_additionallyAllowedTenants);
-  auto const command = GetAzCommand(scopes, tenantId);
 
   // TokenCache::GetToken() can only use the lambda argument when they are being executed. They
   // are not supposed to keep a reference to lambda argument to call it later. Therefore, any
@@ -172,26 +197,39 @@ AccessToken AzureCliCredential::GetToken(
   return m_tokenCache.GetToken(scopes, tenantId, tokenRequestContext.MinimumExpiration, [&]() {
     try
     {
-      auto const azCliResult = RunShellCommand(command, m_cliProcessTimeout, context);
-
+      std::string azCliResult;
       try
       {
-        // The order of elements in the vector below does matter - the code tries to find them
-        // consequently, and if finding the first one succeeds, we would not attempt to parse the
-        // second one. That is important, because the newer Azure CLI versions do have the new
-        // 'expires_on' field, which is not affected by time zone changes. The 'expiresOn' field was
-        // the only field that was present in the older versions, and it had problems, because it
-        // was a local timestamp without the time zone information.
-        // So, if only the 'expires_on' is available, we try to use it, and only if it is not
-        // available, we fall back to trying to get the value via 'expiresOn', which we also now are
-        // able to handle correctly, except when the token expiration crosses the time when the
-        // local system clock moves to and from DST.
-        return TokenCredentialImpl::ParseToken(
-            azCliResult,
-            "accessToken",
-            "expiresIn",
-            std::vector<std::string>{"expires_on", "expiresOn"},
-            GetLocalTimeToUtcDiffSeconds());
+        auto const tzOffsetBefore = GetLocalTimeToUtcDiffSeconds();
+        azCliResult = RunShellCommand(GetAzCommand(scopes, tenantId), m_cliProcessTimeout, context);
+        auto const tzOffsetNow = GetLocalTimeToUtcDiffSeconds();
+
+        if (tzOffsetNow == tzOffsetBefore) // Most of the time, the time zone stays the same.
+        {
+          return ParseTokenFromAzureCli(azCliResult, tzOffsetNow);
+        }
+
+        // We happended to run the Azure CLI command within the seconds of when the time zone was
+        // changed (moving to/from DST).
+
+        {
+          std::string expirationPropertyNameThatWasParsed;
+          auto token = ParseTokenFromAzureCli(
+              azCliResult, tzOffsetNow, &expirationPropertyNameThatWasParsed);
+
+          // If it wasn't the 'expiresOn' property that was parsed for the expiration, the value
+          // that was parsed is still reliable, even though the time zone was changed.
+          if (expirationPropertyNameThatWasParsed != "expiresOn")
+          {
+            return token;
+          }
+        }
+
+        // Otherwise, for the value in 'expiresOn' field, we can't reliably tell, whether the
+        // value it has is relative to the old time zone, or the new one. So, if that's the case,
+        // we re-run the Azure CLI command, and parse the new result.
+        azCliResult = RunShellCommand(GetAzCommand(scopes, tenantId), m_cliProcessTimeout, context);
+        return ParseTokenFromAzureCli(azCliResult, tzOffsetNow);
       }
       catch (json::exception const&)
       {

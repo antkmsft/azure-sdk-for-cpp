@@ -75,6 +75,8 @@ namespace Azure { namespace Identity { namespace _detail {
      * information, a corresponding time zone offset will be applied to such timestamp.
      * No credential other than AzureCliCredential (which gets timestamps as local time without time
      * zone) should need to set it.
+     * @param expirationPropertyNameThatWasUsed Optional. If not `nullptr`, it is used as an output
+     * value for the name of the field, whose value was used to parse the token expiration from.
      *
      * @return A successfully parsed access token.
      *
@@ -88,7 +90,8 @@ namespace Azure { namespace Identity { namespace _detail {
         std::string const& accessTokenPropertyName,
         std::string const& expiresInPropertyName,
         std::vector<std::string> const& expiresOnPropertyNames,
-        int utcDiffSeconds = 0);
+        int utcDiffSeconds = 0,
+        std::string* expirationPropertyNameThatWasUsed = nullptr);
 
     /**
      * @brief Parses JSON that contains access token and its expiration.

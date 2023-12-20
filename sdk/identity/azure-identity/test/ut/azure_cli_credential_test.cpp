@@ -50,29 +50,55 @@ std::string EchoCommand(std::string const text)
 
 class AzureCliTestCredential : public AzureCliCredential {
 private:
-  std::string m_command;
-  int m_localTimeToUtcDiffSeconds = 0;
+  std::vector<std::string> m_commands;
+  mutable std::size_t m_commandIndex = 0;
+
+  std::vector<int> m_localTimeToUtcDiffSeconds;
+  mutable std::size_t m_localTimeToUtcDiffSecondsIndex = 0;
 
   std::string GetAzCommand(std::string const& resource, std::string const& tenantId) const override
   {
     static_cast<void>(resource);
     static_cast<void>(tenantId);
 
-    return m_command;
+    if (m_commandIndex >= m_commands.size())
+    {
+      m_commandIndex = 0;
+    }
+
+    return m_commands.at(m_commandIndex++);
   }
 
-  int GetLocalTimeToUtcDiffSeconds() const override { return m_localTimeToUtcDiffSeconds; }
+  int GetLocalTimeToUtcDiffSeconds() const override
+  {
+    if (m_localTimeToUtcDiffSeconds.empty())
+    {
+      return 0;
+    }
+
+    if (m_localTimeToUtcDiffSecondsIndex >= m_localTimeToUtcDiffSeconds.size())
+    {
+      m_localTimeToUtcDiffSecondsIndex = 0;
+    }
+
+    return m_localTimeToUtcDiffSeconds.at(m_localTimeToUtcDiffSecondsIndex++);
+  }
 
 public:
-  explicit AzureCliTestCredential(std::string command) : m_command(std::move(command)) {}
+  explicit AzureCliTestCredential(std::string command)
+      : m_commands(std::move(std::vector<std::string>{std::move(command)}))
+  {
+  }
 
   explicit AzureCliTestCredential(std::string command, AzureCliCredentialOptions const& options)
-      : AzureCliCredential(options), m_command(std::move(command))
+      : AzureCliCredential(options),
+        m_commands(std::move(std::vector<std::string>{std::move(command)}))
   {
   }
 
   explicit AzureCliTestCredential(std::string command, TokenCredentialOptions const& options)
-      : AzureCliCredential(options), m_command(std::move(command))
+      : AzureCliCredential(options),
+        m_commands(std::move(std::vector<std::string>{std::move(command)}))
   {
   }
 
@@ -84,7 +110,23 @@ public:
   decltype(m_tenantId) const& GetTenantId() const { return m_tenantId; }
   decltype(m_cliProcessTimeout) const& GetCliProcessTimeout() const { return m_cliProcessTimeout; }
 
-  void SetLocalTimeToUtcDiffSeconds(int diff) { m_localTimeToUtcDiffSeconds = diff; }
+  void SetLocalTimeToUtcDiffSeconds(int diff)
+  {
+    m_localTimeToUtcDiffSeconds = std::vector<int>{diff};
+    m_localTimeToUtcDiffSecondsIndex = 0;
+  }
+
+  void SetLocalTimeToUtcDiffSeconds(std::vector<int> diffs)
+  {
+    m_localTimeToUtcDiffSeconds = std::move(diffs);
+    m_localTimeToUtcDiffSecondsIndex = 0;
+  }
+
+  void SetCommands(std::vector<std::string> commands)
+  {
+    m_commands = std::move(commands);
+    m_commandIndex = 0;
+  }
 };
 } // namespace
 
@@ -656,6 +698,69 @@ TEST(AzureCliCredential, LocalTime)
 
     EXPECT_EQ(
         token.ExpiresOn, DateTime::Parse("2023-12-06T22:43:08Z", DateTime::DateFormat::Rfc3339));
+  }
+}
+
+TEST(AzureCliCredential, TzChangesWhenRunningCommand)
+{
+  constexpr auto PacificDaylightOffsetInSeconds = -(7 * 60 * 60);
+  constexpr auto PacificStandardOffsetInSeconds = -(8 * 60 * 60);
+
+  // Old Azure CLI version - does not have the 'expires_on' field.
+  {
+    constexpr auto OldVer1 = "{\"accessToken\":\"OLDVER_FIRST\","
+                             "\"expiresOn\":\"2024-11-03 02:59:58\"}";
+
+    constexpr auto OldVer2 = "{\"accessToken\":\"OLDVER_SECOND\","
+                             "\"expiresOn\":\"2024-11-03 02:00:01\"}";
+
+    constexpr auto OldVer3 = "{\"accessToken\":\"OLDVER_SHOULDNEVERHAPPEN\","
+                             "\"expiresOn\":\"2024-11-03 02:00:03\"}";
+
+    AzureCliTestCredential azCliCred({});
+
+    azCliCred.SetCommands({EchoCommand(OldVer1), EchoCommand(OldVer2), EchoCommand(OldVer3)});
+    azCliCred.SetLocalTimeToUtcDiffSeconds(
+        {PacificDaylightOffsetInSeconds, PacificStandardOffsetInSeconds});
+
+    TokenRequestContext trc;
+    trc.Scopes.push_back("https://storage.azure.com/.default");
+    auto const token = azCliCred.GetToken(trc, {});
+
+    EXPECT_EQ(token.Token, "OLDVER_SECOND");
+
+    EXPECT_EQ(
+        token.ExpiresOn,
+        DateTime::Parse("2024-11-03T02:00:01-08:00", DateTime::DateFormat::Rfc3339));
+  }
+
+  // New Azure CLI version - does have the 'expires_on' field. Command should not be invoked two
+  // times, the first result is good, since it is read from the 'expires_on' field, which is a UTC
+  // timestamp.
+  {
+    constexpr auto NewVer1 = "{\"accessToken\":\"NEWVER_FIRST\","
+                             "\"expiresOn\":\"2024-11-03 02:59:58\","
+                             "\"expires_on\":1730627999}"; // 'expiresOn' + 1 second (:59)
+
+    constexpr auto NewVer2 = "{\"accessToken\":\"NEWVER_SHOULDNEVERHAPPEN\","
+                             "\"expiresOn\":\"2024-11-03 02:00:01\","
+                             "\"expires_on\":1730628002}"; // 'expiresOn' + 1 second (:02)
+
+    AzureCliTestCredential azCliCred({});
+
+    azCliCred.SetCommands({EchoCommand(NewVer1), EchoCommand(NewVer2)});
+    azCliCred.SetLocalTimeToUtcDiffSeconds(
+        {PacificDaylightOffsetInSeconds, PacificStandardOffsetInSeconds});
+
+    TokenRequestContext trc;
+    trc.Scopes.push_back("https://storage.azure.com/.default");
+    auto const token = azCliCred.GetToken(trc, {});
+
+    EXPECT_EQ(token.Token, "NEWVER_FIRST");
+
+    EXPECT_EQ(
+        token.ExpiresOn,
+        DateTime::Parse("2024-11-03T02:59:59-07:00", DateTime::DateFormat::Rfc3339));
   }
 }
 

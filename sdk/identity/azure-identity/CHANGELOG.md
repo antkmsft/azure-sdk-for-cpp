@@ -11,6 +11,7 @@
 ### Bugs Fixed
 
 - [[#5075]](https://github.com/Azure/azure-sdk-for-cpp/issues/5075) `AzureCliCredential` assumes token expiration time without local time zone adjustment.
+- If an older Azure CLI version is used, `AzureCliCredential` would correctly handle the expiration for the toke which was obtained when the local clock time zone gets adjusted.
 
 ### Other Changes
 

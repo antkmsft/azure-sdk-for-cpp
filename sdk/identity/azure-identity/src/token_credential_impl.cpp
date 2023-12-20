@@ -231,7 +231,8 @@ AccessToken TokenCredentialImpl::ParseToken(
     std::string const& accessTokenPropertyName,
     std::string const& expiresInPropertyName,
     std::vector<std::string> const& expiresOnPropertyNames,
-    int utcDiffSeconds)
+    int utcDiffSeconds,
+    std::string* expirationPropertyNameThatWasUsed)
 {
   json parsedJson;
   try
@@ -279,6 +280,10 @@ AccessToken TokenCredentialImpl::ParseToken(
               "Can safely cast to int32");
 
           accessToken.ExpiresOn += std::chrono::seconds(static_cast<std::int32_t>(value));
+          if (expirationPropertyNameThatWasUsed != nullptr)
+          {
+            *expirationPropertyNameThatWasUsed = expiresInPropertyName;
+          }
           return accessToken;
         }
       }
@@ -300,6 +305,10 @@ AccessToken TokenCredentialImpl::ParseToken(
         accessToken.ExpiresOn += std::chrono::seconds(static_cast<std::int32_t>(
             ParseNumericExpiration(expiresIn.get<std::string>(), MaxExpirationInSeconds)));
 
+        if (expirationPropertyNameThatWasUsed != nullptr)
+        {
+          *expirationPropertyNameThatWasUsed = expiresInPropertyName;
+        }
         return accessToken;
       }
       catch (std::exception const&)
@@ -343,6 +352,10 @@ AccessToken TokenCredentialImpl::ParseToken(
           if (value <= MaxPosixTimestamp)
           {
             accessToken.ExpiresOn = PosixTimeConverter::PosixTimeToDateTime(value);
+            if (expirationPropertyNameThatWasUsed != nullptr)
+            {
+              *expirationPropertyNameThatWasUsed = expiresOnPropertyName;
+            }
             return accessToken;
           }
         }
@@ -375,6 +388,10 @@ AccessToken TokenCredentialImpl::ParseToken(
           try
           {
             accessToken.ExpiresOn = parse(expiresOnAsString);
+            if (expirationPropertyNameThatWasUsed != nullptr)
+            {
+              *expirationPropertyNameThatWasUsed = expiresOnPropertyName;
+            }
             return accessToken;
           }
           catch (std::exception const&)
