@@ -487,7 +487,7 @@ namespace Azure { namespace Data { namespace Tables {
      * @brief Upsert Kind
      *
      */
-    enum UpsertKind
+    enum class UpsertKind
     {
       Update,
       Merge,
@@ -717,7 +717,7 @@ namespace Azure { namespace Data { namespace Tables {
      * @brief Transaction Action
      *
      */
-    enum TransactionAction
+    enum class TransactionAction
     {
       InsertEntity = 32,
       DeleteEntity,
