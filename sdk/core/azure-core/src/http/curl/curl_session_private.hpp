@@ -346,7 +346,15 @@ namespace Azure { namespace Core { namespace Http {
      */
     bool m_httpKeepAlive = false;
 
-    bool m_100continueFailure = false;
+    /**
+     * @brief libcurl transport has a logic to split upload requests into two, first of them sending
+     * just the content-lenght without an actual payload, and an "Expect: 100-continue" header.
+     * Then, if the server resonds with HTTP 100 Continue, it sends an actual payload.
+     * The following flag holds the failure state if the server did not respond with HTTP 100
+     * Continue after such request.
+     *
+     */
+    bool m_100ContinueFailure = false;
 
     /**
      * @brief check whether an end of file has been reached.
