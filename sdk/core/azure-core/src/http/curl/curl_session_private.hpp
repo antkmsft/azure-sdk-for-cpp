@@ -346,6 +346,8 @@ namespace Azure { namespace Core { namespace Http {
      */
     bool m_httpKeepAlive = false;
 
+    bool m_100continueFailure = false;
+
     /**
      * @brief check whether an end of file has been reached.
      * @return `true` if end of file has been reached; otherwise, `false`.

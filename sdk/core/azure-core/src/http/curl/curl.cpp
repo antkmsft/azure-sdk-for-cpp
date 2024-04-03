@@ -488,6 +488,7 @@ CURLcode CurlSession::Perform(Context const& context)
   {
     Log::Write(Logger::Level::Verbose, LogMsgPrefix + "Server rejected the upload request");
     m_sessionState = SessionState::STREAMING;
+    m_100ContinueFailure = true;
     return result; // Won't upload.
   }
 
@@ -902,31 +903,7 @@ CURLcode CurlSession::ReadStatusLineAndHeadersFromRawResponse(
   // request body of the first request and discard it.
   // 6. Server side keeps reading the remaining data on the wire and thinks the first part
   // (whatever/path) is an HTTP verb. It fails the request with 400 invalid verb.
-  bool non2xxAfter100ContinueWithNonzeroContentLength = false;
-  {
-    auto responseHttpCodeInt
-        = static_cast<std::underlying_type<Http::HttpStatusCode>::type>(m_lastStatusCode);
-    if (responseHttpCodeInt < 200 || responseHttpCodeInt >= 300)
-    {
-      const auto requestExpectHeader = m_request.GetHeader("Expect");
-      if (requestExpectHeader.HasValue())
-      {
-        const auto requestExpectHeaderValueLowercase
-            = Core::_internal::StringExtensions::ToLower(requestExpectHeader.Value());
-        if (requestExpectHeaderValueLowercase == "100-continue")
-        {
-          const auto requestContentLengthHeaderValue = m_request.GetHeader("Content-Length");
-          if (requestContentLengthHeaderValue.HasValue()
-              && requestContentLengthHeaderValue.Value() != "0")
-          {
-            non2xxAfter100ContinueWithNonzeroContentLength = true;
-          }
-        }
-      }
-    }
-  }
-
-  if (non2xxAfter100ContinueWithNonzeroContentLength)
+  if (m_100ContinueFailure)
   {
     m_httpKeepAlive = false;
   }
