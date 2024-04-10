@@ -944,6 +944,7 @@ CURLcode CurlSession::ReadStatusLineAndHeadersFromRawResponse(
       m_httpKeepAlive = true;
     }
   }
+  // LCOV_EXCL_STOP
 
   // For Head request, set the length of body response to 0.
   // Response will give us content-length as if we were not doing Head saying what would it be the
