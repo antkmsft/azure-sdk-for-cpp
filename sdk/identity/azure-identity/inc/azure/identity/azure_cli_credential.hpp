@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "azure/identity/detail/token_cache.hpp"
+#include "azure/identity/detail/cli_tool_credential_impl.hpp"
 
 #include <azure/core/credentials/credentials.hpp>
 #include <azure/core/credentials/token_credential_options.hpp>
@@ -49,25 +49,10 @@ namespace Azure { namespace Identity {
    * @brief Enables authentication to Microsoft Entra ID using Azure CLI to obtain an access
    * token.
    */
-  class AzureCliCredential
-#if !defined(_azure_TESTING_BUILD)
-      final
-#endif
-      : public Core::Credentials::TokenCredential {
-  protected:
-    /** @brief The cache for the access token. */
-    _detail::TokenCache m_tokenCache;
-
-    /** @brief Additional tenants which will be allowed for this credential. */
-    std::vector<std::string> m_additionallyAllowedTenants;
-
-    /** @brief The ID of the tenant to which the credential will authenticate by default. */
-    std::string m_tenantId;
-
-    /** @brief The CLI process timeout. */
-    DateTime::duration m_cliProcessTimeout;
-
+  class AzureCliCredential final : public Core::Credentials::TokenCredential {
   private:
+    _detail::CliToolCredentialImpl m_cliToolCredentialImpl;
+
     explicit AzureCliCredential(
         Core::Credentials::TokenCredentialOptions const& options,
         std::string tenantId,
@@ -105,14 +90,6 @@ namespace Azure { namespace Identity {
     Core::Credentials::AccessToken GetToken(
         Core::Credentials::TokenRequestContext const& tokenRequestContext,
         Core::Context const& context) const override;
-
-#if !defined(_azure_TESTING_BUILD)
-  private:
-#else
-  protected:
-#endif
-    virtual std::string GetAzCommand(std::string const& scopes, std::string const& tenantId) const;
-    virtual int GetLocalTimeToUtcDiffSeconds() const;
   };
 
 }} // namespace Azure::Identity

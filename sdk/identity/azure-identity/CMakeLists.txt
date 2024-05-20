@@ -53,6 +53,7 @@ set(
     inc/azure/identity/client_secret_credential.hpp
     inc/azure/identity/default_azure_credential.hpp
     inc/azure/identity/detail/client_credential_core.hpp
+    inc/azure/identity/detail/cli_tool_credential_impl.hpp
     inc/azure/identity/detail/token_cache.hpp
     inc/azure/identity/dll_import_export.hpp
     inc/azure/identity/environment_credential.hpp
@@ -68,6 +69,7 @@ set(
     src/client_certificate_credential.cpp
     src/client_credential_core.cpp
     src/client_secret_credential.cpp
+    src/cli_tool_credential_impl.cpp
     src/default_azure_credential.cpp
     src/environment_credential.cpp
     src/managed_identity_credential.cpp

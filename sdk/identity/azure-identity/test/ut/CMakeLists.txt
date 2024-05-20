@@ -20,6 +20,7 @@ add_executable (
     chained_token_credential_test.cpp
     client_certificate_credential_test.cpp
     client_secret_credential_test.cpp
+    cli_tool_credentials_test.cpp
     credential_test_helper.cpp
     credential_test_helper.hpp
     default_azure_credential_test.cpp
