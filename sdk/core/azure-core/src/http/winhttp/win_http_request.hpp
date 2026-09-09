@@ -22,6 +22,7 @@
 
 #include <windows.h>
 
+#include <atomic>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -62,11 +63,13 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     WinHttpRequest* const m_httpRequest{};
     wil::unique_event m_actionCompleteEvent;
     // Mutex protecting all mutable members of the class.
+    std::mutex m_scopeExitMutex;
     std::mutex m_actionCompleteMutex;
     DWORD m_expectedStatus{};
     DWORD m_stowedError{};
     DWORD_PTR m_stowedErrorInformation{};
     DWORD m_bytesAvailable{};
+    std::atomic<bool> m_scopeExit{false};
 
     /*
      * Callback from WinHTTP called after the TLS certificates are received when the caller sets
