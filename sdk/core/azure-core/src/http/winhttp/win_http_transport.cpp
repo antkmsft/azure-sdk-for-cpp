@@ -605,6 +605,11 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       m_scopeExit = true;
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
     }
+    else
+    {
+      Log::Stream(Logger::Level::Verbose)
+          << "WinHttpAction::CompleteAction(): not invoking SetEvent_scope_exit() twice.";
+    }
   }
   void WinHttpAction::CompleteActionWithData(DWORD bytesAvailable)
   {
@@ -617,6 +622,11 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     {
       m_scopeExit = true;
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
+    }
+    else
+    {
+      Log::Stream(Logger::Level::Verbose)
+          << "WinHttpAction::CompleteActionWithData(): not invoking SetEvent_scope_exit() twice.";
     }
 
     std::unique_lock<std::mutex> lock(m_actionCompleteMutex);
@@ -635,6 +645,11 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       {
         m_scopeExit = true;
         scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
+      }
+      else
+      {
+        Log::Stream(Logger::Level::Verbose)
+            << "WinHttpAction::CompleteActionWithError(): not invoking SetEvent_scope_exit() twice.";
       }
 
       std::unique_lock<std::mutex> lock(m_actionCompleteMutex);
