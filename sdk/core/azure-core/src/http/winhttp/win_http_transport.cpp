@@ -618,8 +618,9 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     }
     else
     {
-      Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteAction(): "
-                                             "not invoking SetEvent_scope_exit() on a closed event.";
+      Log::Stream(Logger::Level::Verbose)
+          << "WinHttpAction::CompleteAction(): "
+             "not invoking SetEvent_scope_exit() on a closed event.";
     }
   }
   void WinHttpAction::CompleteActionWithData(DWORD bytesAvailable)
@@ -635,8 +636,9 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     }
     else
     {
-      Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteActionWithData(): "
-                                             "not invoking SetEvent_scope_exit() on a closed event.";
+      Log::Stream(Logger::Level::Verbose)
+          << "WinHttpAction::CompleteActionWithData(): "
+             "not invoking SetEvent_scope_exit() on a closed event.";
 
       return;
     }
@@ -659,8 +661,9 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       }
       else
       {
-        Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteActionWithError(): "
-                                               "not invoking SetEvent_scope_exit() on a closed event.";
+        Log::Stream(Logger::Level::Verbose)
+            << "WinHttpAction::CompleteActionWithError(): "
+               "not invoking SetEvent_scope_exit() on a closed event.";
 
         return;
       }
