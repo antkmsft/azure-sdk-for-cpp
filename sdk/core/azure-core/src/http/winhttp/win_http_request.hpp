@@ -117,6 +117,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
         m_actionCompleteReset = true;
         m_actionCompleteEvent.reset();
       }
+
+      m_httpRequest->UnregisterCallback();
     }
 
     /**
@@ -179,7 +181,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
    * @brief A WinHttpRequest object encapsulates an HTTP operation.
    */
   class WinHttpRequest final {
-    bool m_requestHandleClosed{false};
+    std::shared_timed_mutex m_requestHandleMutex;
+    std::atomic<bool> m_requestHandleClosed{false};
     Azure::Core::_internal::UniqueHandle<HINTERNET> m_requestHandle;
     std::unique_ptr<WinHttpAction> m_httpAction;
     std::vector<std::string> m_expectedTlsRootCertificates;
@@ -208,7 +211,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
         std::chrono::milliseconds connectionTimeout);
 
     ~WinHttpRequest();
-    void MarkRequestHandleClosed() { m_requestHandleClosed = true; };
+    void CloseRequestHandle(bool lock);
+    void UnregisterCallback();
     void Upload(Azure::Core::Http::Request& request, Azure::Core::Context const& context);
     void SendRequest(Azure::Core::Http::Request& request, Azure::Core::Context const& context);
     void ReceiveResponse(Azure::Core::Context const& context);
