@@ -26,6 +26,7 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <shared_mutex>
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -63,7 +64,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     WinHttpRequest* const m_httpRequest{};
     wil::unique_event m_actionCompleteEvent;
     // Mutex protecting all mutable members of the class.
-    std::mutex m_actionCompleteResetMutex;
+    std::shared_timed_mutex m_actionCompleteResetMutex;
     std::mutex m_actionCompleteMutex;
     DWORD m_expectedStatus{};
     DWORD m_stowedError{};

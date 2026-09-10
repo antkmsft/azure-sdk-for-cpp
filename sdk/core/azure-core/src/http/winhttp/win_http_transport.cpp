@@ -554,7 +554,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     // By definition, there cannot be any actions outstanding at this point because we have not
     // yet called initiateAction. So it's safe to reset our state here.
-    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    std::shared_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
     if (!m_actionCompleteReset)
     {
       ResetEvent(m_actionCompleteEvent.get());
@@ -611,7 +611,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
   void WinHttpAction::CompleteAction()
   {
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    std::shared_lock<std::shared_timed_mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
     if (!m_actionCompleteReset)
     {
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
@@ -629,7 +629,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // destroyed *after* lock is destroyed, ensuring that the event is not set to the signalled
     // state before the lock is released.
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    std::shared_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
     if (!m_actionCompleteReset)
     {
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
@@ -654,7 +654,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       // is destroyed *after* lock is destroyed, ensuring that the event is not set to the
       // signalled state before the lock is released.
       wil::event_set_scope_exit scope_exit;
-      std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+      std::shared_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
       if (!m_actionCompleteReset)
       {
         scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
