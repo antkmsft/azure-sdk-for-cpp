@@ -111,7 +111,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     ~WinHttpAction()
     {
-      std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+      std::unique_lock<std::shared_timed_mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
       if (!m_actionCompleteReset)
       {
         m_actionCompleteReset = true;
