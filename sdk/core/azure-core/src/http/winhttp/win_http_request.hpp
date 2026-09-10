@@ -63,13 +63,13 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     WinHttpRequest* const m_httpRequest{};
     wil::unique_event m_actionCompleteEvent;
     // Mutex protecting all mutable members of the class.
-    std::mutex m_scopeExitMutex;
+    std::mutex m_actionCompleteResetMutex;
     std::mutex m_actionCompleteMutex;
     DWORD m_expectedStatus{};
     DWORD m_stowedError{};
     DWORD_PTR m_stowedErrorInformation{};
     DWORD m_bytesAvailable{};
-    std::atomic<bool> m_scopeExit{false};
+    std::atomic<bool> m_actionCompleteReset{false};
 
     /*
      * Callback from WinHTTP called after the TLS certificates are received when the caller sets
@@ -105,6 +105,16 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       if (!m_actionCompleteEvent)
       {
         throw std::runtime_error("Error creating Action Complete Event.");
+      }
+    }
+
+    ~WinHttpAction()
+    {
+      std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+      if (!m_actionCompleteReset)
+      {
+        m_actionCompleteReset = true;
+        m_actionCompleteEvent.reset();
       }
     }
 

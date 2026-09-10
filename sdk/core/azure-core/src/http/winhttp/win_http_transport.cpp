@@ -554,7 +554,19 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     // By definition, there cannot be any actions outstanding at this point because we have not
     // yet called initiateAction. So it's safe to reset our state here.
-    ResetEvent(m_actionCompleteEvent.get());
+    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    if (!m_actionCompleteReset)
+    {
+      ResetEvent(m_actionCompleteEvent.get());
+    }
+    else
+    {
+      Log::Stream(Logger::Level::Verbose) << "WinHttpAction::WaitForAction(): "
+                                             "not invoking ResetEvent() on a closed event.";
+
+      return false;
+    }
+
     m_expectedStatus = expectedCallbackStatus;
     m_stowedError = 0;
     m_stowedErrorInformation = 0;
@@ -599,16 +611,15 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
   void WinHttpAction::CompleteAction()
   {
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
-    if (!m_scopeExit)
+    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    if (!m_actionCompleteReset)
     {
-      m_scopeExit = true;
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
     }
     else
     {
       Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteAction(): "
-                                             "not invoking SetEvent_scope_exit() twice.";
+                                             "not invoking SetEvent_scope_exit() on a closed event.";
     }
   }
   void WinHttpAction::CompleteActionWithData(DWORD bytesAvailable)
@@ -617,16 +628,17 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // destroyed *after* lock is destroyed, ensuring that the event is not set to the signalled
     // state before the lock is released.
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
-    if (!m_scopeExit)
+    std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    if (!m_actionCompleteReset)
     {
-      m_scopeExit = true;
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
     }
     else
     {
       Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteActionWithData(): "
-                                             "not invoking SetEvent_scope_exit() twice.";
+                                             "not invoking SetEvent_scope_exit() on a closed event.";
+
+      return;
     }
 
     std::unique_lock<std::mutex> lock(m_actionCompleteMutex);
@@ -640,16 +652,17 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       // is destroyed *after* lock is destroyed, ensuring that the event is not set to the
       // signalled state before the lock is released.
       wil::event_set_scope_exit scope_exit;
-      std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
-      if (!m_scopeExit)
+      std::unique_lock<std::mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+      if (!m_actionCompleteReset)
       {
-        m_scopeExit = true;
         scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
       }
       else
       {
         Log::Stream(Logger::Level::Verbose) << "WinHttpAction::CompleteActionWithError(): "
-                                               "not invoking SetEvent_scope_exit() twice.";
+                                               "not invoking SetEvent_scope_exit() on a closed event.";
+
+        return;
       }
 
       std::unique_lock<std::mutex> lock(m_actionCompleteMutex);
