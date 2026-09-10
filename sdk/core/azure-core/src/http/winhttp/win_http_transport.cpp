@@ -599,7 +599,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
   void WinHttpAction::CompleteAction()
   {
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> lock(m_scopeExitMutex);
+    std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
     if (!m_scopeExit)
     {
       m_scopeExit = true;
@@ -617,7 +617,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // destroyed *after* lock is destroyed, ensuring that the event is not set to the signalled
     // state before the lock is released.
     wil::event_set_scope_exit scope_exit;
-    std::unique_lock<std::mutex> lock(m_scopeExitMutex);
+    std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
     if (!m_scopeExit)
     {
       m_scopeExit = true;
@@ -640,7 +640,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       // is destroyed *after* lock is destroyed, ensuring that the event is not set to the
       // signalled state before the lock is released.
       wil::event_set_scope_exit scope_exit;
-      std::unique_lock<std::mutex> lock(m_scopeExitMutex);
+      std::unique_lock<std::mutex> scopeExitLock(m_scopeExitMutex);
       if (!m_scopeExit)
       {
         m_scopeExit = true;
