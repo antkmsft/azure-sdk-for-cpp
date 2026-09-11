@@ -1822,7 +1822,6 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     // Now, use WinHttpQueryHeaders to retrieve all the headers.
     // Each header is terminated by "\0". An additional "\0" terminates the list of headers.
-    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!WinHttpQueryHeaders(
             m_requestHandle.get(),
             WINHTTP_QUERY_RAW_HEADERS,
