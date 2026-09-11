@@ -1504,7 +1504,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       // Close the outstanding request handle, waiting until the HANDLE_CLOSING status is
       // received.
       if (!m_httpAction->WaitForAction(
-              [this]() { CloseRequestHandle(false) },
+              [this]() { CloseRequestHandle(false); },
               WINHTTP_CALLBACK_STATUS_HANDLE_CLOSING,
               Azure::Core::Context{}))
       {
