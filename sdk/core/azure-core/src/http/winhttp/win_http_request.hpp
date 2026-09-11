@@ -109,17 +109,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       }
     }
 
-    ~WinHttpAction()
-    {
-      std::unique_lock<std::shared_timed_mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
-      if (!m_actionCompleteReset)
-      {
-        m_actionCompleteReset = true;
-        m_actionCompleteEvent.reset();
-      }
-
-      m_httpRequest->UnregisterCallback();
-    }
+    ~WinHttpAction();
 
     /**
      * Register the WinHTTP Status callback used by the action.

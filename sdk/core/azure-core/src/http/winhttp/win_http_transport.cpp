@@ -524,6 +524,18 @@ namespace Azure { namespace Core { namespace Http {
 
 namespace Azure { namespace Core { namespace Http { namespace _detail {
 
+  WinHttpAction::~WinHttpAction()
+  {
+    std::unique_lock<std::shared_timed_mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    if (!m_actionCompleteReset)
+    {
+      m_actionCompleteReset = true;
+      m_actionCompleteEvent.reset();
+    }
+
+    m_httpRequest->UnregisterCallback();
+  }
+
   bool WinHttpAction::RegisterWinHttpStatusCallback(
       Azure::Core::_internal::UniqueHandle<HINTERNET> const& internetHandle)
   {
