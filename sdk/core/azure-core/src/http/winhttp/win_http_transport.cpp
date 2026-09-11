@@ -1528,10 +1528,12 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
   void WinHttpRequest::CloseRequestHandle(bool lock)
   {
-    std::unique_lock<std::shared_timed_mutex> requestHandleLock;
+    std::unique_lock<std::shared_timed_mutex> requestHandleLock(
+        m_requestHandleMutex, std::defer_lock);
+
     if (lock)
     {
-      requestHandleLock.lock(m_requestHandleMutex);
+      requestHandleLock.lock();
     }
 
     if (!m_requestHandleClosed)
