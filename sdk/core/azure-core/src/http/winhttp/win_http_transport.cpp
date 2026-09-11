@@ -1309,7 +1309,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
   void WinHttpRequest::EnableWebSocketsSupport()
   {
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable : 6387) // warning C6387: _Param_(3) could be '0'.
@@ -1494,7 +1494,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
    */
   WinHttpRequest::~WinHttpRequest()
   {
-    std::unique_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::unique_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!m_requestHandleClosed)
     {
       Log::Write(
@@ -1516,7 +1516,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
   void WinHttpRequest::CloseRequestHandle(bool lock)
   {
-    std::unique_lock<std::shred_timed_mutex> requestHandleLock;
+    std::unique_lock<std::shared_timed_mutex> requestHandleLock;
     if (lock)
     {
       requestHandleLock.lock(m_requestHandleMutex);
@@ -1537,7 +1537,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
   void WinHttpRequest::UnregisterCallback()
   {
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!m_requestHandleClosed)
     {
       WinHttpSetStatusCallback(
@@ -1588,7 +1588,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
       DWORD dwBytesWritten = 0;
 
-      std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+      std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
       if (!m_httpAction->WaitForAction(
               [&]() { // Write data to the server.
                 if (!WinHttpWriteData(
@@ -1635,7 +1635,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       Log::Stream(Logger::Level::Verbose)
           << "Client certificate needed, providing before request.." << std::endl;
 
-      std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+      std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
       if (!WinHttpSetOption(
               m_requestHandle.get(),
               WINHTTP_OPTION_CLIENT_CERT_CONTEXT,
@@ -1648,7 +1648,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     try
     {
-      std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+      std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
       if (!m_httpAction->WaitForAction(
               [&]() {
                 {
@@ -1717,7 +1717,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // Wait to receive the response to the HTTP request initiated by WinHttpSendRequest.
     // When WinHttpReceiveResponse completes successfully, the status code and response headers
     // have been received.
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!m_httpAction->WaitForAction(
             [this]() {
               if (!WinHttpReceiveResponse(m_requestHandle.get(), NULL))
@@ -1756,7 +1756,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // Get the content length as a number.
     if (requestMethod != HttpMethod::Head && responseStatusCode != HttpStatusCode::NoContent)
     {
-      std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+      std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
       if (!WinHttpQueryHeaders(
               m_requestHandle.get(),
               WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER,
@@ -1785,7 +1785,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
     // First, use WinHttpQueryHeaders to obtain the size of the buffer.
     // The call is expected to fail since no destination buffer is provided.
     DWORD sizeOfHeaders = 0;
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (WinHttpQueryHeaders(
             m_requestHandle.get(),
             WINHTTP_QUERY_RAW_HEADERS,
@@ -1811,7 +1811,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
     // Now, use WinHttpQueryHeaders to retrieve all the headers.
     // Each header is terminated by "\0". An additional "\0" terminates the list of headers.
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!WinHttpQueryHeaders(
             m_requestHandle.get(),
             WINHTTP_QUERY_RAW_HEADERS,
@@ -1948,7 +1948,7 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
       Azure::Core::Context const& context)
   {
     DWORD numberOfBytesRead = 0;
-    std::shared_lock<std::shred_timed_mutex> requestHandleLock(m_requestHandleMutex);
+    std::shared_lock<std::shared_timed_mutex> requestHandleLock(m_requestHandleMutex);
     if (!m_httpAction->WaitForAction(
             [&]() {
               if (!WinHttpReadData(
