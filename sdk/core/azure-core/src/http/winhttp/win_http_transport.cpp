@@ -622,8 +622,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
 
   void WinHttpAction::CompleteAction()
   {
-    wil::event_set_scope_exit scope_exit;
     std::shared_lock<std::shared_timed_mutex> actionCompleteResetLock(m_actionCompleteResetMutex);
+    wil::event_set_scope_exit scope_exit;
     if (!m_actionCompleteReset)
     {
       scope_exit = m_actionCompleteEvent.SetEvent_scope_exit();
