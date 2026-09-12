@@ -171,6 +171,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
    * @brief A WinHttpRequest object encapsulates an HTTP operation.
    */
   class WinHttpRequest final {
+    std::shared_timed_mutex m_requestHandleClosingMutex;
+    std::atomic<bool> m_requestHandleClosing{false};
     std::shared_timed_mutex m_requestHandleMutex;
     std::atomic<bool> m_requestHandleClosed{false};
     Azure::Core::_internal::UniqueHandle<HINTERNET> m_requestHandle;
@@ -201,6 +203,8 @@ namespace Azure { namespace Core { namespace Http { namespace _detail {
         std::chrono::milliseconds connectionTimeout);
 
     ~WinHttpRequest();
+    void MarkRequestHandleForClosing();
+    bool IsRequestHandleMarkedForClosing();
     void CloseRequestHandle(bool lock);
     void UnregisterCallback();
     void Upload(Azure::Core::Http::Request& request, Azure::Core::Context const& context);
